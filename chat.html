@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#11100f">
+    <meta name="description" content="Chat with Zoe, your thoughtful, permission-first AI assistant.">
+    <title>Chat with Zoe — your personal assistant</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/chat.js" defer></script>
+  </head>
+  <body>
+    <main class="chat-page" id="chat-page">
+      <header class="chat-page-header">
+        <a class="chat-back" href="/" aria-label="Back to your space">
+          <span class="brand-mark">zoe</span>
+          <span>← &nbsp; Back to your space</span>
+        </a>
+        <span class="chat-page-meta"><i></i> PRIVATE, LOCAL DEMO</span>
+      </header>
+
+      <div class="chat-layout">
+        <section class="chat-presence" aria-label="Zoe assistant">
+          <div class="voice-orb-scene" aria-hidden="true">
+            <div class="voice-orbit"></div>
+            <div class="voice-orbit voice-orbit-two"></div>
+            <div class="voice-orb">
+              <svg class="assistant-symbol" viewBox="0 0 48 40" aria-hidden="true">
+                <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>
+                <path class="symbol-spine" d="M24 15v19"/>
+                <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
+              </svg>
+            </div>
+            <i class="voice-spark voice-spark-one"></i>
+            <i class="voice-spark voice-spark-two"></i>
+            <i class="voice-spark voice-spark-three"></i>
+          </div>
+          <div class="chat-presence-copy">
+            <p class="eyebrow">YOUR AI ASSISTANT</p>
+            <h1 class="assistant-logo" aria-label="Zoe AI assistant">
+              <svg class="assistant-symbol" viewBox="0 0 48 40" aria-hidden="true">
+                <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>
+                <path class="symbol-spine" d="M24 15v19"/>
+                <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
+              </svg>
+            </h1>
+            <p>Here to help you find your way around.</p>
+            <div class="voice-status" role="status" aria-live="polite">
+              <i></i><span id="voice-status-text">READY WHEN YOU ARE</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="conversation-card" aria-label="Conversation with Zoe">
+          <header class="conversation-header">
+            <div class="conversation-title">
+              <div class="mini-orb" aria-label="Zoe AI assistant">
+                <svg class="assistant-symbol" viewBox="0 0 48 40" aria-hidden="true">
+                  <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>
+                  <path class="symbol-spine" d="M24 15v19"/>
+                  <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
+                </svg>
+              </div>
+              <div><strong>Chat with Zoe</strong><span><i></i> Here with you</span></div>
+            </div>
+            <div class="conversation-actions">
+              <button class="voice-toggle" id="voice-toggle" type="button" aria-pressed="true">Replies on</button>
+            </div>
+          </header>
+
+          <div class="conversation-messages" id="chat-messages" aria-live="polite">
+            <div class="chat-time">JUST NOW</div>
+            <div class="message assistant-message">
+              <span class="message-avatar" aria-label="Zoe AI assistant">
+                <svg class="assistant-symbol" viewBox="0 0 48 40" aria-hidden="true">
+                  <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>
+                  <path class="symbol-spine" d="M24 15v19"/>
+                  <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
+                </svg>
+              </span>
+              <div class="message-bubble" id="welcome-message">I’m Zoe. What would you like a hand with?</div>
+            </div>
+            <div class="suggestion-label">A FEW THINGS I CAN HELP WITH</div>
+            <div class="suggestion-chips">
+              <button type="button" data-prompt="Open my files">Find my files <span>↗</span></button>
+              <button type="button" data-prompt="Open my workspace">Go to workspace <span>↗</span></button>
+              <button type="button" data-prompt="Show my recent activity">See recent activity <span>↗</span></button>
+            </div>
+          </div>
+
+          <form class="chat-composer" id="chat-form">
+            <label class="sr-only" for="chat-input">Message Zoe</label>
+            <input id="chat-input" type="text" placeholder="Ask me anything..." maxlength="1000" autocomplete="off">
+            <button class="voice-input-button" id="voice-input-toggle" type="button" aria-label="Start voice instruction" aria-pressed="false" title="Speak an instruction">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="9" y="3" width="6" height="12" rx="3"></rect>
+                <path d="M5 11a7 7 0 0 0 14 0M12 18v3m-4 0h8"></path>
+              </svg>
+            </button>
+            <button class="send-button" type="submit" aria-label="Send message">↑</button>
+            <div class="composer-foot"><span id="voice-input-status" role="status" aria-live="polite">Type or tap the mic to speak</span><span class="composer-spark">✳ &nbsp; Always ask before acting</span></div>
+          </form>
+          <p class="chat-disclaimer">Optional voice input uses your browser’s speech service; audio may be sent to that provider. Zoe asks before navigating.</p>
+        </section>
+      </div>
+
+      <div class="modal-backdrop" id="permission-modal" hidden>
+        <section class="permission-dialog" role="dialog" aria-modal="true" aria-labelledby="permission-title" aria-describedby="permission-description">
+          <button class="modal-close icon-button" id="modal-close" aria-label="Cancel action">×</button>
+          <div class="permission-icon">✳</div>
+          <p class="eyebrow">YOUR PERMISSION, PLEASE</p>
+          <h2 id="permission-title">A quick check-in.</h2>
+          <p class="permission-copy" id="permission-description">Zoe would like to do something for you.</p>
+          <div class="action-preview"><span class="preview-icon">↗</span><div><strong id="proposal-title">Open a page</strong><span id="proposal-detail">Inside your Zoe demo</span></div><span class="preview-lock">⌑</span></div>
+          <p class="permission-footnote"><span>✳</span> This only changes what you see inside Zoe. No system commands are run.</p>
+          <div class="permission-actions"><button class="decline-button" id="decline-action">Not now</button><button class="approve-button" id="approve-action">Yes, go ahead <span>↗</span></button></div>
+        </section>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </body>
+</html>

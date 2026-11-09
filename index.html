@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#11100f">
+    <meta name="description" content="Meet Zoe, your thoughtful, permission-first AI assistant.">
+    <title>Zoe — your personal assistant</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="unsupported" id="unsupported" hidden>
+      <div class="unsupported-mark" aria-label="Zoe logo">zoe</div>
+      <p class="eyebrow">A little more room, please</p>
+      <h1>Zoe is made for your laptop.</h1>
+      <p>Open Zoe on a laptop-sized screen to explore your personal assistant.</p>
+    </div>
+
+    <main class="auth-screen" id="auth-screen" hidden>
+      <section class="auth-story">
+        <a class="brand auth-brand" href="#" aria-label="Zoe home"><span class="brand-mark">zoe</span></a>
+        <div class="auth-story-copy">
+          <p class="eyebrow">A LITTLE MORE IN SYNC</p>
+          <h1>Your day,<br><span>with a hand.</span></h1>
+          <p>Meet Zoe — a thoughtful assistant that helps you find your way around, always on your terms.</p>
+        </div>
+        <div class="auth-orb-scene" aria-hidden="true">
+          <div class="auth-orb-orbit auth-orbit-one"></div>
+          <div class="auth-orb-orbit auth-orbit-two"></div>
+          <div class="auth-orb">
+            <svg class="assistant-symbol" viewBox="0 0 48 40" aria-hidden="true">
+              <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>
+              <path class="symbol-spine" d="M24 15v19"/>
+              <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
+            </svg>
+          </div>
+          <i class="auth-spark auth-spark-one"></i><i class="auth-spark auth-spark-two"></i><i class="auth-spark auth-spark-three"></i>
+        </div>
+        <div class="auth-story-footer"><span>✳ &nbsp; PRIVATE BY DESIGN</span><span>YOUR PERMISSION, ALWAYS</span></div>
+      </section>
+      <section class="auth-form-side">
+        <div class="auth-card">
+          <div class="auth-mobile-brand"><span class="brand-mark">zoe</span></div>
+          <p class="eyebrow" id="auth-eyebrow">WELCOME BACK</p>
+          <h2 id="auth-title">Come on in.</h2>
+          <p class="auth-subtitle" id="auth-subtitle">Sign in to pick up where you left off.</p>
+          <div class="demo-notice"><span>✳</span><p><strong>sign-in only.</strong> Zoe has no account service yet. Don</p></div>
+          <form id="auth-form">
+            <label class="auth-field" id="name-field">
+              <span id="name-label">Your name (optional)</span>
+              <input id="auth-name" name="name" type="text" placeholder="How should Zoe greet you?" autocomplete="off" maxlength="60">
+            </label>
+            <label class="auth-field">
+              <span>Email address</span>
+              <input id="auth-email" name="email" type="email" placeholder="you@example.com" autocomplete="off" required>
+            </label>
+            <label class="auth-field">
+              <span>Password</span>
+              <input id="auth-password" name="password" type="password" placeholder="Enter a demo password" autocomplete="off" minlength="4" required>
+            </label>
+            <button class="auth-submit" id="auth-submit" type="submit">Sign in <span>↗</span></button>
+          </form>
+          <p class="auth-switch"><span id="auth-switch-copy">New to Zoe?</span> <button id="auth-switch" type="button">Create an account</button></p>
+          <p class="auth-privacy"><span>⌑</span> Demo only · Your details stay in this tab</p>
+        </div>
+        <div class="auth-side-footer">A calmer way to move through your day.</div>
+      </section>
+    </main>
+
+    <main class="loading-screen is-entering" id="loading-screen" aria-live="polite">
+      <div class="loading-card">
+        <header class="loading-header">
+          <span class="brand-mark">zoe</span>
+          <span class="local-badge"><i></i> LOCAL DEMO</span>
+        </header>
+        <div class="loading-body">
+          <div class="loading-visual" aria-hidden="true">
+            <div class="loading-orb-wrap">
+              <div class="loading-orbit loading-orbit-one"><i></i></div>
+              <div class="loading-orbit loading-orbit-two"><i></i></div>
+              <div class="loading-orbit loading-orbit-three"></div>
+              <div class="loading-orb-halo"></div>
+              <div class="loading-orb">
+                <svg class="assistant-symbol" viewBox="0 0 48 40" aria-hidden="true">
+                  <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>
+                  <path class="symbol-spine" d="M24 15v19"/>
+                  <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
+                </svg>
+              </div>
+              <i class="loading-spark loading-spark-one"></i><i class="loading-spark loading-spark-two"></i><i class="loading-spark loading-spark-three"></i>
+            </div>
+            <span class="loading-visual-caption">YOUR SPACE, YOUR PACE</span>
+          </div>
+          <section class="loading-details" aria-labelledby="loading-title">
+            <p class="eyebrow" id="loading-eyebrow">STARTING YOUR LOCAL DEMO</p>
+            <h1 id="loading-title">Waking Zoe.</h1>
+            <p id="loading-caption">Loading your welcome screen on this device.</p>
+            <ol class="loading-steps">
+              <li class="loading-step" data-loading-step="0"><span class="step-indicator"></span><span>Starting Zoe's interface</span><span class="step-state"></span></li>
+              <li class="loading-step" data-loading-step="1"><span class="step-indicator"></span><span>Preparing sign in and sign up</span><span class="step-state"></span></li>
+              <li class="loading-step" data-loading-step="2"><span class="step-indicator"></span><span>Almost ready</span><span class="step-state"></span></li>
+            </ol>
+          </section>
+        </div>
+        <footer class="loading-footer">
+          <div class="loading-progress" id="loading-progress" role="progressbar" aria-label="Preparing your local Zoe demo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="loading-progress-fill"></span></div>
+          <div class="loading-footer-copy"><span id="loading-progress-label">Getting things ready</span><span id="loading-progress-value">0%</span></div>
+          <p>Demo only <span>·</span> No account server or personal data transfer</p>
+        </footer>
+      </div>
+    </main>
+
+    <div class="app-shell" id="app-shell" hidden>
+      <aside class="sidebar">
+        <a class="brand" href="#" aria-label="Zoe home">
+          <span class="brand-mark sidebar-brand-mark">
+            <svg class="assistant-symbol" viewBox="0 0 48 40" aria-hidden="true">
+              <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>
+              <path class="symbol-spine" d="M24 15v19"/>
+              <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
+            </svg>
+          </span>
+        </a>
+        <div class="workspace-label">YOUR SPACE</div>
+        <nav class="navigation" aria-label="Main navigation">
+          <button class="nav-item active" data-page="overview"><span class="nav-icon">⌂</span>Overview</button>
+          <button class="nav-item" data-page="files"><span class="nav-icon">▤</span>Files <span class="nav-count">3</span></button>
+          <button class="nav-item" data-page="workspace"><span class="nav-icon">◫</span>Workspace</button>
+          <button class="nav-item" data-page="activity"><span class="nav-icon">↗</span>Activity</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="privacy-card">
+            <span class="privacy-icon">✳</span>
+            <div><strong>Your say, always.</strong><p>Zoe asks before she acts.</p></div>
+          </div>
+          <div class="profile">
+            <div class="profile-avatar" id="profile-avatar">Y</div>
+            <div class="profile-copy"><strong id="profile-name">Your space</strong><span>Private &amp; local</span></div>
+            <span class="more-icon">···</span>
+          </div>
+          <button class="signout-button" id="signout-button" type="button" hidden>Sign out</button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="breadcrumbs"><span>My space</span><span class="crumb-separator">/</span><strong id="page-title">Overview</strong></div>
+          <div class="topbar-right">
+            <span class="local-status"><i></i> Local mode</span>
+            <span class="topbar-divider"></span>
+            <span class="clock" id="clock">--:--</span>
+            <button class="icon-button help-button" id="help-button" aria-label="About Zoe">?</button>
+          </div>
+        </header>
+
+        <div class="content-wrap">
+          <div class="welcome-row">
+            <div>
+              <p class="eyebrow" id="date-label">YOUR PERSONAL SPACE</p>
+              <h1 class="assistant-logo" id="greeting" aria-label="Zoe AI assistant">
+                <svg class="assistant-symbol" viewBox="0 0 48 40" aria-hidden="true">
+                  <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>
+                  <path class="symbol-spine" d="M24 15v19"/>
+                  <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
+                </svg>
+              </h1>
+              <p class="welcome-subtitle" id="welcome-subtitle">A calmer way to move through your day.</p>
+            </div>
+            <div class="weather-pill"><span>✦</span> Your day, at your pace</div>
+          </div>
+
+          <section class="lower-grid" aria-label="Your shortcuts and recent activity">
+            <div class="section-block shortcuts-block">
+              <div class="section-heading"><div><p class="eyebrow">A GOOD PLACE TO START</p><h2>Make yourself at home</h2></div><button class="text-button" data-page="workspace">See workspace <span>↗</span></button></div>
+              <div class="shortcut-grid">
+                <button class="shortcut-card" data-page="files"><span class="shortcut-icon peach">▤</span><span class="shortcut-text"><strong>Your files</strong><small>Pick up where you left off</small></span><span class="shortcut-arrow">↗</span></button>
+                <button class="shortcut-card" data-page="workspace"><span class="shortcut-icon lilac">◫</span><span class="shortcut-text"><strong>Workspace</strong><small>A tidy place for your ideas</small></span><span class="shortcut-arrow">↗</span></button>
+                <button class="shortcut-card" data-page="activity"><span class="shortcut-icon sage">⌁</span><span class="shortcut-text"><strong>Recent activity</strong><small>Your day, in little moments</small></span><span class="shortcut-arrow">↗</span></button>
+              </div>
+            </div>
+            <div class="section-block note-block">
+              <div class="section-heading"><div><p class="eyebrow">A SMALL PROMISE</p><h2>Nothing without you.</h2></div><span class="note-spark">✳</span></div>
+              <p class="note-copy">Every action comes to you first. You’re always in control of what happens next.</p>
+              <div class="note-footer"><span class="note-check">✓</span> Your permission is the first step, every time.</div>
+            </div>
+          </section>
+
+          <footer class="footer-note"><span>MADE TO FEEL A LITTLE MORE HUMAN</span><span>✳ &nbsp; Zoe is listening when you’re ready</span></footer>
+        </div>
+      </main>
+
+      <a class="assistant-launcher" href="/chat.html" aria-label="Chat with Zoe">
+        <span class="assistant-launcher-orb" aria-hidden="true">
+          <svg class="assistant-symbol" viewBox="0 0 48 40">
+            <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>
+            <path class="symbol-spine" d="M24 15v19"/>
+            <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
+          </svg>
+        </span>
+        <span class="assistant-launcher-label" aria-hidden="true">Talk to Zoe</span>
+      </a>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

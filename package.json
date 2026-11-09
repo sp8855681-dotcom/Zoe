@@ -1,0 +1,55 @@
+{
+  "name": "zoe-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zoe Windows desktop assistant",
+  "main": "electron\\main.js",
+  "scripts": {
+    "start": "electron .",
+    "preview": "node server.js",
+    "test": "node --test",
+    "backend": "node backend/server.js",
+    "rebuild-native": "electron-rebuild -f -w node-window-manager",
+    "dist": "node scripts\\validate-release-config.js && electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.2.1",
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0"
+  },
+  "optionalDependencies": {
+    "node-window-manager": "^2.2.4"
+  },
+  "build": {
+    "appId": "com.zoeassistant.desktop",
+    "productName": "Zoe",
+    "asar": true,
+    "files": [
+      "app.js",
+      "chat.html",
+      "chat.js",
+      "index.html",
+      "server.js",
+      "widget.html",
+      "widget.js",
+      "styles.css",
+      "electron/config.json",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true
+  }
+}
