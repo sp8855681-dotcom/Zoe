@@ -7,16 +7,33 @@ const voiceToggle = document.getElementById("voice-toggle");
 const voiceInputToggle = document.getElementById("voice-input-toggle");
 const voiceInputStatus = document.getElementById("voice-input-status");
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const isDesktopApp = Boolean(window.zoeDesktop?.isDesktop);
 let activeProposal = null;
 let voiceEnabled = true;
 let speechRecognition = null;
 let isListening = false;
 let toastTimer;
 
-const currentName = sessionStorage.getItem("zoeDemoName") || "there";
-const greetingName = currentName.split(/\s+/)[0];
-const greeting = `Hey ${greetingName}, it’s Zoe. What would you like a hand with?`;
+let currentName = sessionStorage.getItem("zoeDisplayName") || "there";
+let greeting = `Hey ${currentName.split(/\s+/)[0]}, it’s Zoe. What would you like a hand with?`;
 document.getElementById("welcome-message").textContent = greeting;
+const webSessionReady = isDesktopApp
+  ? Promise.resolve(true)
+  : window.zoeWebAuth.getSession().then((user) => {
+    if (!user) {
+      window.location.replace("./");
+      return false;
+    }
+    currentName = user.name || user.email?.split("@")[0] || "there";
+    sessionStorage.setItem("zoeDisplayName", currentName);
+    greeting = `Hey ${currentName.split(/\s+/)[0]}, it’s Zoe. What would you like a hand with?`;
+    document.getElementById("welcome-message").textContent = greeting;
+    return true;
+  }).catch((error) => {
+    voiceInputStatus.textContent = `Couldn't restore your account session: ${error.message}`;
+    chatInput.disabled = true;
+    return false;
+  });
 
 function setSpeaking(speaking) {
   chatPage.classList.toggle("is-speaking", speaking);
@@ -143,6 +160,7 @@ function openPermission(proposal) {
 }
 
 async function sendMessage(message, { showUserMessage = true } = {}) {
+  if (!await webSessionReady) return;
   const cleaned = message.trim();
   if (!cleaned) return;
   if (cleaned.length > 1000) {
@@ -154,16 +172,16 @@ async function sendMessage(message, { showUserMessage = true } = {}) {
   chatInput.disabled = true;
   document.querySelector(".conversation-card").classList.add("busy");
   try {
-    const result = window.zoeDesktop?.isDesktop
+    const result = isDesktopApp
       ? await window.zoeDesktop.chat(cleaned)
-      : await postJson("/api/chat", { message: cleaned });
+      : await window.zoeWebAuth.chat(cleaned);
     addMessage(result.reply, "assistant");
     if (result.actionProposal === "minimize-previous-window") {
       await requestMinimizePreviousWindow();
     }
     if (result.proposal) openPermission(result.proposal);
   } catch (error) {
-    addMessage(`I couldn't reach the local service. ${error.message}`, "assistant");
+    addMessage(`I couldn't reach Zoe's online service. ${error.message}`, "assistant");
   } finally {
     chatInput.disabled = false;
     document.querySelector(".conversation-card").classList.remove("busy");
@@ -229,7 +247,7 @@ document.getElementById("approve-action").addEventListener("click", async () => 
     });
     if (result.approved) {
       modal.hidden = true;
-      window.location.href = `/?page=${encodeURIComponent(result.destination)}`;
+      window.location.href = `./?page=${encodeURIComponent(result.destination)}`;
     }
   } catch (error) {
     showToast(error.message);
@@ -255,7 +273,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !modal.hidden) dismissPermission();
 });
 
-speak(greeting);
+if (isDesktopApp) speak(greeting);
 
 function showToast(message) {
   toast.textContent = message;

@@ -2,15 +2,15 @@
   "name": "zoe-assistant",
   "version": "1.0.0",
   "private": true,
-  "description": "Zoe Windows desktop assistant",
+  "description": "Zoe AI assistant for the web and Windows desktop",
   "main": "electron\\main.js",
   "scripts": {
     "start": "electron .",
-    "preview": "node server.js",
+    "preview": "node --env-file=backend/.env backend/server.js",
     "test": "node --test",
-    "backend": "node backend/server.js",
+    "backend": "node --env-file=backend/.env backend/server.js",
     "rebuild-native": "electron-rebuild -f -w node-window-manager",
-    "dist": "node scripts\\validate-release-config.js && electron-builder --win nsis"
+    "dist": "node scripts\\validate-release-config.js && electron-builder --win nsis --publish never"
   },
   "devDependencies": {
     "@electron/rebuild": "^4.2.1",
@@ -29,6 +29,11 @@
       "chat.html",
       "chat.js",
       "index.html",
+      "web-auth.js",
+      "pwa.js",
+      "manifest.webmanifest",
+      "service-worker.js",
+      "icons/**/*",
       "server.js",
       "widget.html",
       "widget.js",

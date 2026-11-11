@@ -1,10 +1,25 @@
 const http = require("node:http");
 const { randomUUID } = require("node:crypto");
+const fs = require("node:fs/promises");
+const path = require("node:path");
 
 const MAX_BODY_BYTES = 16 * 1024;
 const AUTH_LIMIT = { count: 8, windowMs: 60_000 };
 const CHAT_LIMIT = { count: 20, windowMs: 60_000 };
+const CHAT_QUOTA = { perUserPerDay: 60, globalPerDay: 60, maxReplyTokens: 60 };
 const requestCounts = new Map();
+const webAssets = new Map([
+  ["/", ["index.html", "text/html; charset=utf-8"]],
+  ["/chat.html", ["chat.html", "text/html; charset=utf-8"]],
+  ["/styles.css", ["styles.css", "text/css; charset=utf-8"]],
+  ["/app.js", ["app.js", "text/javascript; charset=utf-8"]],
+  ["/chat.js", ["chat.js", "text/javascript; charset=utf-8"]],
+  ["/web-auth.js", ["web-auth.js", "text/javascript; charset=utf-8"]],
+  ["/pwa.js", ["pwa.js", "text/javascript; charset=utf-8"]],
+  ["/manifest.webmanifest", ["manifest.webmanifest", "application/manifest+json; charset=utf-8"]],
+  ["/service-worker.js", ["service-worker.js", "text/javascript; charset=utf-8"]],
+  ["/icons/zoe.svg", ["icons/zoe.svg", "image/svg+xml"]],
+]);
 
 function sendJson(response, status, value) {
   response.writeHead(status, {
@@ -83,6 +98,37 @@ function createServer({ env = process.env, fetchImpl = fetch } = {}) {
     return result;
   }
 
+  async function consumeChatQuota(userId) {
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+      throw Object.assign(new Error("Daily AI usage limits are not configured."), { status: 503 });
+    }
+
+    const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+    const response = await fetchImpl(
+      `${env.SUPABASE_URL.replace(/\/$/, "")}/rest/v1/rpc/consume_zoe_chat_quota`,
+      {
+        method: "POST",
+        headers: {
+          apikey: serviceKey,
+          Authorization: `******`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          p_user_id: userId,
+          p_user_daily_limit: CHAT_QUOTA.perUserPerDay,
+          p_global_daily_limit: CHAT_QUOTA.globalPerDay,
+        }),
+        signal: AbortSignal.timeout(20_000),
+      },
+    );
+    const quota = await response.json().catch(() => null);
+    if (!response.ok || !quota || typeof quota.allowed !== "boolean") {
+      console.error("Supabase daily chat quota request failed:", response.status);
+      throw Object.assign(new Error("Daily AI usage limits are temporarily unavailable."), { status: 503 });
+    }
+    return quota;
+  }
+
   async function authenticate(body, mode) {
     if (typeof body.email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
       throw Object.assign(new Error("Enter a valid email address."), { status: 400 });
@@ -125,8 +171,28 @@ function createServer({ env = process.env, fetchImpl = fetch } = {}) {
     if (request.method === "GET" && url.pathname === "/health") {
       sendJson(response, 200, {
         ok: true,
-        configured: Boolean(env.SUPABASE_URL && env.SUPABASE_ANON_KEY && env.OPENAI_API_KEY),
+        configured: Boolean(
+          env.SUPABASE_URL
+          && env.SUPABASE_ANON_KEY
+          && env.SUPABASE_SERVICE_ROLE_KEY
+          && env.OPENAI_API_KEY,
+        ),
       });
+      return;
+    }
+
+    if (request.method === "GET" && webAssets.has(url.pathname)) {
+      const [assetPath, contentType] = webAssets.get(url.pathname);
+      const content = await fs.readFile(path.join(__dirname, "..", assetPath));
+      response.writeHead(200, {
+        "Content-Type": contentType,
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "microphone=(self)",
+        "Content-Security-Policy": "default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+      });
+      response.end(content);
       return;
     }
 
@@ -205,11 +271,23 @@ function createServer({ env = process.env, fetchImpl = fetch } = {}) {
       sendJson(response, 400, { error: "Message must be a non-empty string of at most 1000 characters." });
       return;
     }
+    if (body.surface !== undefined && body.surface !== "desktop" && body.surface !== "web") {
+      sendJson(response, 400, { error: "Surface must be either web or desktop." });
+      return;
+    }
     if (isRateLimited(`chat:${authUser.id}`, CHAT_LIMIT)) {
       sendJson(response, 429, { error: "You’ve reached the short-term message limit. Please wait a minute." });
       return;
     }
+    const quota = await consumeChatQuota(authUser.id);
+    if (!quota.allowed) {
+      sendJson(response, 429, {
+        error: "Zoe’s daily chat limit has been reached. Please try again after 00:00 UTC.",
+      });
+      return;
+    }
 
+    const isWebClient = body.surface === "web";
     const aiResponse = await fetchImpl("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -221,11 +299,13 @@ function createServer({ env = process.env, fetchImpl = fetch } = {}) {
         messages: [
           {
             role: "system",
-            content: "You are Zoe, a helpful Windows desktop assistant. You may answer questions and propose minimizing only the app Zoe most recently left. Never claim to have performed a computer action. Never run shell commands, inspect files, or control other apps. Ask the user before proposing the single allowed minimize action; the desktop app will show a separate Windows confirmation.",
+            content: isWebClient
+              ? "You are Zoe, a helpful web assistant. Answer questions and help the user navigate the Zoe website. You cannot control the user's device, access their files, or perform actions outside this website. Do not claim to have taken actions. If the user asks for an unavailable action, explain the limitation."
+              : "You are Zoe, a helpful Windows desktop assistant. You may answer questions and propose minimizing only the app Zoe most recently left. Never claim to have performed a computer action. Never run shell commands, inspect files, or control other apps. Ask the user before proposing the single allowed minimize action; the desktop app will show a separate Windows confirmation.",
           },
           { role: "user", content: body.message.trim() },
         ],
-        tools: [{
+        ...(!isWebClient ? { tools: [{
           type: "function",
           function: {
             name: "request_minimize_previous_window",
@@ -238,9 +318,8 @@ function createServer({ env = process.env, fetchImpl = fetch } = {}) {
               additionalProperties: false,
             },
           },
-        }],
-        tool_choice: "auto",
-        max_tokens: 300,
+        }], tool_choice: "auto" } : {}),
+        max_tokens: CHAT_QUOTA.maxReplyTokens,
       }),
       signal: AbortSignal.timeout(30_000),
     });
@@ -252,7 +331,7 @@ function createServer({ env = process.env, fetchImpl = fetch } = {}) {
     }
 
     const choice = result.choices?.[0]?.message;
-    const requestsMinimize = choice?.tool_calls?.some(
+    const requestsMinimize = !isWebClient && choice?.tool_calls?.some(
       (toolCall) => toolCall.function?.name === "request_minimize_previous_window",
     );
     if (requestsMinimize) {

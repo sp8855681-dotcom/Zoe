@@ -1,0 +1,18 @@
+{
+  "name": "Zoe AI Assistant",
+  "short_name": "Zoe",
+  "description": "A thoughtful AI assistant, available when you need a hand.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#11100f",
+  "theme_color": "#11100f",
+  "icons": [
+    {
+      "src": "icons/zoe.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

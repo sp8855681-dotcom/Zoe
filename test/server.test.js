@@ -37,6 +37,33 @@ test("desktop widget page and script are served for the Electron overlay", async
   assert.match(await script.text(), /zoeDesktop\.openAssistant/);
 });
 
+test("PWA assets are served with install and offline-shell metadata", async () => {
+  const [page, manifest, worker, icon] = await Promise.all([
+    fetch(`${origin}/`),
+    fetch(`${origin}/manifest.webmanifest`),
+    fetch(`${origin}/service-worker.js`),
+    fetch(`${origin}/icons/zoe.svg`),
+  ]);
+  assert.equal(page.status, 200);
+  assert.match(page.headers.get("content-security-policy"), /worker-src 'self'/);
+  const pageSource = await page.text();
+  assert.match(pageSource, /href="styles\.css"/);
+  assert.match(pageSource, /src="app\.js"/);
+  assert.doesNotMatch(pageSource, /(?:href|src)="\//);
+  assert.equal(manifest.status, 200);
+  assert.equal(manifest.headers.get("content-type"), "application/manifest+json; charset=utf-8");
+  const manifestData = await manifest.json();
+  assert.equal(manifestData.display, "standalone");
+  assert.equal(manifestData.start_url, "./");
+  assert.equal(manifestData.scope, "./");
+  assert.equal(worker.status, 200);
+  const workerSource = await worker.text();
+  assert.match(workerSource, /zoe-app-shell-v1/);
+  assert.match(workerSource, /new URL\("chat\.html", appScope\)/);
+  assert.equal(icon.status, 200);
+  assert.match(icon.headers.get("content-type"), /image\/svg\+xml/);
+});
+
 test("minimize requests only propose an action", async () => {
   const response = await fetch(`${origin}/api/chat`, {
     method: "POST",

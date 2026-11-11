@@ -6,15 +6,19 @@
     <meta name="theme-color" content="#11100f">
     <meta name="description" content="Meet Zoe, your thoughtful, permission-first AI assistant.">
     <title>Zoe — your personal assistant</title>
-    <link rel="stylesheet" href="/styles.css">
-    <script src="/app.js" defer></script>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/zoe.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <script src="web-auth.js" defer></script>
+    <script src="pwa.js" defer></script>
+    <script src="app.js" defer></script>
   </head>
   <body>
     <div class="unsupported" id="unsupported" hidden>
       <div class="unsupported-mark" aria-label="Zoe logo">zoe</div>
       <p class="eyebrow">A little more room, please</p>
-      <h1>Zoe is made for your laptop.</h1>
-      <p>Open Zoe on a laptop-sized screen to explore your personal assistant.</p>
+      <h1>This desktop window is too small.</h1>
+      <p>Resize the Zoe window to at least 960 pixels wide, or use Zoe in your browser.</p>
     </div>
 
     <main class="auth-screen" id="auth-screen" hidden>
@@ -45,7 +49,7 @@
           <p class="eyebrow" id="auth-eyebrow">WELCOME BACK</p>
           <h2 id="auth-title">Come on in.</h2>
           <p class="auth-subtitle" id="auth-subtitle">Sign in to pick up where you left off.</p>
-          <div class="demo-notice"><span>✳</span><p><strong>sign-in only.</strong> Zoe has no account service yet. Don</p></div>
+          <div class="account-notice"><span>✳</span><p><strong>Your account stays yours.</strong> Sign-in is handled by Zoe’s secure account service. Chat messages are sent to OpenAI to generate replies.</p></div>
           <form id="auth-form">
             <label class="auth-field" id="name-field">
               <span id="name-label">Your name (optional)</span>
@@ -53,16 +57,16 @@
             </label>
             <label class="auth-field">
               <span>Email address</span>
-              <input id="auth-email" name="email" type="email" placeholder="you@example.com" autocomplete="off" required>
+              <input id="auth-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
             </label>
             <label class="auth-field">
               <span>Password</span>
-              <input id="auth-password" name="password" type="password" placeholder="Enter a demo password" autocomplete="off" minlength="4" required>
+              <input id="auth-password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" minlength="10" required>
             </label>
             <button class="auth-submit" id="auth-submit" type="submit">Sign in <span>↗</span></button>
           </form>
           <p class="auth-switch"><span id="auth-switch-copy">New to Zoe?</span> <button id="auth-switch" type="button">Create an account</button></p>
-          <p class="auth-privacy"><span>⌑</span> Demo only · Your details stay in this tab</p>
+          <p class="auth-privacy"><span>⌑</span> Use a unique password · Sign out on shared devices</p>
         </div>
         <div class="auth-side-footer">A calmer way to move through your day.</div>
       </section>
@@ -72,7 +76,7 @@
       <div class="loading-card">
         <header class="loading-header">
           <span class="brand-mark">zoe</span>
-          <span class="local-badge"><i></i> LOCAL DEMO</span>
+          <span class="local-badge"><i></i> SECURE CONNECTION</span>
         </header>
         <div class="loading-body">
           <div class="loading-visual" aria-hidden="true">
@@ -93,7 +97,7 @@
             <span class="loading-visual-caption">YOUR SPACE, YOUR PACE</span>
           </div>
           <section class="loading-details" aria-labelledby="loading-title">
-            <p class="eyebrow" id="loading-eyebrow">STARTING YOUR LOCAL DEMO</p>
+            <p class="eyebrow" id="loading-eyebrow">STARTING ZOE</p>
             <h1 id="loading-title">Waking Zoe.</h1>
             <p id="loading-caption">Loading your welcome screen on this device.</p>
             <ol class="loading-steps">
@@ -104,9 +108,9 @@
           </section>
         </div>
         <footer class="loading-footer">
-          <div class="loading-progress" id="loading-progress" role="progressbar" aria-label="Preparing your local Zoe demo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="loading-progress-fill"></span></div>
+          <div class="loading-progress" id="loading-progress" role="progressbar" aria-label="Preparing Zoe" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="loading-progress-fill"></span></div>
           <div class="loading-footer-copy"><span id="loading-progress-label">Getting things ready</span><span id="loading-progress-value">0%</span></div>
-          <p>Demo only <span>·</span> No account server or personal data transfer</p>
+          <p>Account sign-in uses Supabase <span>·</span> AI replies use OpenAI</p>
         </footer>
       </div>
     </main>
@@ -136,7 +140,7 @@
           </div>
           <div class="profile">
             <div class="profile-avatar" id="profile-avatar">Y</div>
-            <div class="profile-copy"><strong id="profile-name">Your space</strong><span>Private &amp; local</span></div>
+            <div class="profile-copy"><strong id="profile-name">Your space</strong><span>Private account</span></div>
             <span class="more-icon">···</span>
           </div>
           <button class="signout-button" id="signout-button" type="button" hidden>Sign out</button>
@@ -147,7 +151,8 @@
         <header class="topbar">
           <div class="breadcrumbs"><span>My space</span><span class="crumb-separator">/</span><strong id="page-title">Overview</strong></div>
           <div class="topbar-right">
-            <span class="local-status"><i></i> Local mode</span>
+            <span class="local-status"><i></i> Online service</span>
+            <button class="install-button" id="install-app" type="button" hidden>Install Zoe</button>
             <span class="topbar-divider"></span>
             <span class="clock" id="clock">--:--</span>
             <button class="icon-button help-button" id="help-button" aria-label="About Zoe">?</button>
@@ -190,7 +195,7 @@
         </div>
       </main>
 
-      <a class="assistant-launcher" href="/chat.html" aria-label="Chat with Zoe">
+      <a class="assistant-launcher" href="chat.html" aria-label="Chat with Zoe">
         <span class="assistant-launcher-orb" aria-hidden="true">
           <svg class="assistant-symbol" viewBox="0 0 48 40">
             <path class="symbol-page" d="M24 15c-5-5-12-6-19-3v20c7-3 14-2 19 2m0-19c5-5 12-6 19-3v20c-7-3-14-2-19 2"/>

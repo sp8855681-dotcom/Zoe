@@ -6,17 +6,21 @@
     <meta name="theme-color" content="#11100f">
     <meta name="description" content="Chat with Zoe, your thoughtful, permission-first AI assistant.">
     <title>Chat with Zoe — your personal assistant</title>
-    <link rel="stylesheet" href="/styles.css">
-    <script src="/chat.js" defer></script>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/zoe.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <script src="web-auth.js" defer></script>
+    <script src="pwa.js" defer></script>
+    <script src="chat.js" defer></script>
   </head>
   <body>
     <main class="chat-page" id="chat-page">
       <header class="chat-page-header">
-        <a class="chat-back" href="/" aria-label="Back to your space">
+        <a class="chat-back" href="./" aria-label="Back to your space">
           <span class="brand-mark">zoe</span>
           <span>← &nbsp; Back to your space</span>
         </a>
-        <span class="chat-page-meta"><i></i> PRIVATE, LOCAL DEMO</span>
+        <span class="chat-page-meta"><i></i> AI ASSISTANT · ONLINE</span>
       </header>
 
       <div class="chat-layout">
@@ -44,7 +48,7 @@
                 <path class="symbol-lines" d="M9 18c5-1 9 0 12 2m-12 4c5-1 9 0 12 2m18-8c-5-1-9 0-12 2m12 2c-5-1-9 0-12 2"/>
               </svg>
             </h1>
-            <p>Here to help you find your way around.</p>
+            <p>Here to help with questions and ideas.</p>
             <div class="voice-status" role="status" aria-live="polite">
               <i></i><span id="voice-status-text">READY WHEN YOU ARE</span>
             </div>
@@ -82,9 +86,9 @@
             </div>
             <div class="suggestion-label">A FEW THINGS I CAN HELP WITH</div>
             <div class="suggestion-chips">
-              <button type="button" data-prompt="Open my files">Find my files <span>↗</span></button>
-              <button type="button" data-prompt="Open my workspace">Go to workspace <span>↗</span></button>
-              <button type="button" data-prompt="Show my recent activity">See recent activity <span>↗</span></button>
+              <button type="button" data-prompt="Help me organize my day">Organize my day <span>↗</span></button>
+              <button type="button" data-prompt="Explain a new topic simply">Explain something <span>↗</span></button>
+              <button type="button" data-prompt="Help me brainstorm an idea">Brainstorm with me <span>↗</span></button>
             </div>
           </div>
 
@@ -98,9 +102,9 @@
               </svg>
             </button>
             <button class="send-button" type="submit" aria-label="Send message">↑</button>
-            <div class="composer-foot"><span id="voice-input-status" role="status" aria-live="polite">Type or tap the mic to speak</span><span class="composer-spark">✳ &nbsp; Always ask before acting</span></div>
+            <div class="composer-foot"><span id="voice-input-status" role="status" aria-live="polite">Type or tap the mic to speak</span><span class="composer-spark">✳ &nbsp; Zoe cannot control your device</span></div>
           </form>
-          <p class="chat-disclaimer">Optional voice input uses your browser’s speech service; audio may be sent to that provider. Zoe asks before navigating.</p>
+          <p class="chat-disclaimer">Messages are sent to OpenAI to generate replies. Optional voice input uses your browser’s speech service; audio may be sent to that provider. Zoe cannot access your files or control your device.</p>
         </section>
       </div>
 
@@ -111,7 +115,7 @@
           <p class="eyebrow">YOUR PERMISSION, PLEASE</p>
           <h2 id="permission-title">A quick check-in.</h2>
           <p class="permission-copy" id="permission-description">Zoe would like to do something for you.</p>
-          <div class="action-preview"><span class="preview-icon">↗</span><div><strong id="proposal-title">Open a page</strong><span id="proposal-detail">Inside your Zoe demo</span></div><span class="preview-lock">⌑</span></div>
+          <div class="action-preview"><span class="preview-icon">↗</span><div><strong id="proposal-title">Open a page</strong><span id="proposal-detail">Inside your Zoe space</span></div><span class="preview-lock">⌑</span></div>
           <p class="permission-footnote"><span>✳</span> This only changes what you see inside Zoe. No system commands are run.</p>
           <div class="permission-actions"><button class="decline-button" id="decline-action">Not now</button><button class="approve-button" id="approve-action">Yes, go ahead <span>↗</span></button></div>
         </section>

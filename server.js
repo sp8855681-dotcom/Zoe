@@ -17,6 +17,11 @@ const pages = new Map([
   ["/styles.css", ["styles.css", "text/css; charset=utf-8"]],
   ["/app.js", ["app.js", "text/javascript; charset=utf-8"]],
   ["/chat.js", ["chat.js", "text/javascript; charset=utf-8"]],
+  ["/web-auth.js", ["web-auth.js", "text/javascript; charset=utf-8"]],
+  ["/pwa.js", ["pwa.js", "text/javascript; charset=utf-8"]],
+  ["/manifest.webmanifest", ["manifest.webmanifest", "application/manifest+json; charset=utf-8"]],
+  ["/service-worker.js", ["service-worker.js", "text/javascript; charset=utf-8"]],
+  ["/icons/zoe.svg", ["icons/zoe.svg", "image/svg+xml"]],
   ["/widget.js", ["widget.js", "text/javascript; charset=utf-8"]],
 ]);
 
@@ -148,7 +153,7 @@ async function handleRequest(request, response) {
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
       "Cache-Control": "no-cache",
-      "Content-Security-Policy": "default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+      "Content-Security-Policy": "default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
     });
     fs.createReadStream(path.join(ROOT, file)).pipe(response);
     return;

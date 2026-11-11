@@ -1,12 +1,14 @@
 const isLaptopSized = window.matchMedia("(min-width: 960px)").matches;
+const isDesktopApp = Boolean(window.zoeDesktop?.isDesktop);
 const shell = document.getElementById("app-shell");
 const unsupported = document.getElementById("unsupported");
 const authScreen = document.getElementById("auth-screen");
 const loadingScreen = document.getElementById("loading-screen");
-if (window.zoeDesktop?.isDesktop) {
+document.body.classList.toggle("desktop-app", isDesktopApp);
+if (isDesktopApp) {
   document.querySelector(".assistant-launcher").hidden = true;
 }
-if (!isLaptopSized) {
+if (isDesktopApp && !isLaptopSized) {
   shell.hidden = true;
   authScreen.hidden = true;
   unsupported.hidden = false;
@@ -26,10 +28,10 @@ document.getElementById("auth-switch").addEventListener("click", () => {
   document.getElementById("auth-eyebrow").textContent = isSignUp ? "A SPACE OF YOUR OWN" : "WELCOME BACK";
   document.getElementById("auth-title").textContent = isSignUp ? "Let’s get started." : "Come on in.";
   document.getElementById("auth-subtitle").textContent = isSignUp
-    ? "Create your demo space and meet Zoe."
+    ? "Create your account and meet Zoe."
     : "Sign in to pick up where you left off.";
   document.getElementById("auth-submit").innerHTML = isSignUp
-    ? 'Create demo account <span>↗</span>'
+    ? 'Create account <span>↗</span>'
     : 'Sign in <span>↗</span>';
   document.getElementById("auth-switch-copy").textContent = isSignUp
     ? "Already have an account?"
@@ -58,17 +60,17 @@ function updateLoadingStep(activeStep, progress, caption) {
 }
 
 async function showStartupLoading() {
-  updateLoadingStep(-1, 0, "Starting on this device");
+  updateLoadingStep(-1, 0, "Connecting to Zoe");
   await waitForLoadingBeat(180);
   updateLoadingStep(0, 28, "Starting Zoe's interface");
   await waitForLoadingBeat(430);
-  updateLoadingStep(1, 68, "Preparing sign in and sign up");
+  updateLoadingStep(1, 68, "Preparing secure account access");
   await waitForLoadingBeat(430);
   updateLoadingStep(2, 100, "Almost ready");
   await waitForLoadingBeat(300);
 
   document.getElementById("loading-title").textContent = "Your welcome is ready.";
-  document.getElementById("loading-caption").textContent = "Choose sign in or create your demo account.";
+  document.getElementById("loading-caption").textContent = "Sign in or create your account.";
   document.getElementById("loading-progress-label").textContent = "Ready";
   document.querySelectorAll(".loading-step").forEach((step) => {
     step.classList.remove("is-active");
@@ -112,17 +114,31 @@ document.getElementById("auth-form").addEventListener("submit", async (event) =>
       return;
     }
   } else {
-    currentName = (enteredName || emailName || "there").replace(/\s+/g, " ");
-    sessionStorage.setItem("zoeDemoName", currentName);
-    sessionStorage.setItem("zoeDemoSignedIn", "true");
+    try {
+      const result = await window.zoeWebAuth.authenticate({
+        mode: authMode,
+        email: document.getElementById("auth-email").value,
+        password: document.getElementById("auth-password").value,
+        name: enteredName,
+      });
+      if (result.needsEmailConfirmation) {
+        showToast("Check your email to confirm your account, then sign in.");
+        return;
+      }
+      currentName = result.user.name || emailName || "there";
+      document.getElementById("signout-button").hidden = false;
+    } catch (error) {
+      showToast(error.message);
+      return;
+    }
   }
-  sessionStorage.setItem("zoeDemoName", currentName);
+  sessionStorage.setItem("zoeDisplayName", currentName);
   document.getElementById("auth-form").reset();
   document.getElementById("loading-title").textContent = `Making room for you, ${currentName.split(/\s+/)[0]}.`;
   document.getElementById("loading-eyebrow").textContent = authMode === "signup"
-    ? "CREATING YOUR LOCAL DEMO SPACE"
-    : "GETTING YOUR LOCAL DEMO READY";
-  updateLoadingStep(-1, 0, "Starting on this device");
+    ? "CREATING YOUR ACCOUNT"
+    : "SIGNING IN SECURELY";
+  updateLoadingStep(-1, 0, "Connecting to Zoe");
   loadingScreen.classList.remove("is-leaving");
   loadingScreen.hidden = false;
   window.requestAnimationFrame(() => {
@@ -138,13 +154,13 @@ document.getElementById("auth-form").addEventListener("submit", async (event) =>
   await waitForLoadingBeat(520);
   updateClock();
   setPage("overview", false);
-  updateLoadingStep(1, 72, "Preparing your local space");
+  updateLoadingStep(1, 72, "Preparing your private space");
 
   await waitForLoadingBeat(520);
   updateLoadingStep(2, 100, "Opening Zoe");
   await waitForLoadingBeat(360);
   document.getElementById("loading-title").textContent = "Your space is ready.";
-  document.getElementById("loading-caption").textContent = "Welcome in. Everything is running locally.";
+  document.getElementById("loading-caption").textContent = "Welcome in. Zoe is ready to help.";
   document.getElementById("loading-progress-label").textContent = "Ready";
   document.querySelectorAll(".loading-step").forEach((step) => {
     step.classList.remove("is-active");
@@ -214,17 +230,20 @@ document.querySelectorAll("[data-page]").forEach((button) => {
 });
 
 document.getElementById("help-button").addEventListener("click", () => {
-  showToast("Zoe is a local demo. She only navigates these panels, and only after you approve.");
+  showToast("Zoe can help with questions, but the web assistant cannot access files or control your device.");
 });
 
 document.getElementById("signout-button").addEventListener("click", async () => {
-  if (!window.zoeDesktop?.isDesktop) return;
-  const button = document.getElementById("signout-button");
-  button.disabled = true;
-  try {
+const button = document.getElementById("signout-button");
+button.disabled = true;
+try {
+  if (isDesktopApp) {
     await window.zoeDesktop.signOut();
-    sessionStorage.clear();
-    window.location.href = "/";
+  } else {
+    await window.zoeWebAuth.signOut();
+  }
+  sessionStorage.clear();
+  window.location.href = "./";
   } catch (error) {
     showToast(`Couldn't sign out cleanly. ${error.message}`);
   } finally {
@@ -233,8 +252,8 @@ document.getElementById("signout-button").addEventListener("click", async () => 
 });
 
 async function restoreDesktopSession() {
-  document.querySelector(".demo-notice p").innerHTML =
-    "<strong>Secure account sign-in.</strong> Zoe uses your account to access the hosted assistant. Your password is sent only to Zoe’s account service.";
+  document.querySelector(".account-notice p").innerHTML =
+    "<strong>Your account stays yours.</strong> Sign-in is handled by Zoe’s secure account service. Chat messages are sent to OpenAI to generate replies.";
   try {
     const user = await window.zoeDesktop.getSession();
     if (!user) {
@@ -242,7 +261,7 @@ async function restoreDesktopSession() {
       return;
     }
     currentName = user.name || user.email?.split("@")[0] || "there";
-    sessionStorage.setItem("zoeDemoName", currentName);
+    sessionStorage.setItem("zoeDisplayName", currentName);
     document.getElementById("profile-name").textContent = currentName;
     document.getElementById("profile-avatar").textContent = currentName.charAt(0).toUpperCase();
     document.getElementById("signout-button").hidden = false;
@@ -256,16 +275,32 @@ async function restoreDesktopSession() {
   }
 }
 
-if (window.zoeDesktop?.isDesktop) {
+async function restoreWebSession() {
+  try {
+    const user = await window.zoeWebAuth.getSession();
+    if (!user) {
+      showStartupLoading();
+      return;
+    }
+    currentName = user.name || user.email?.split("@")[0] || "there";
+    sessionStorage.setItem("zoeDisplayName", currentName);
+    document.getElementById("profile-name").textContent = currentName;
+    document.getElementById("profile-avatar").textContent = currentName.charAt(0).toUpperCase();
+    document.getElementById("signout-button").hidden = false;
+    authScreen.hidden = true;
+    loadingScreen.hidden = true;
+    shell.hidden = false;
+    setPage(new URLSearchParams(window.location.search).get("page") || "overview", false);
+  } catch (error) {
+    showStartupLoading();
+    showToast(`Couldn't restore your account session. ${error.message}`);
+  }
+}
+
+if (isDesktopApp) {
   restoreDesktopSession();
-} else if (sessionStorage.getItem("zoeDemoSignedIn") === "true") {
-  currentName = sessionStorage.getItem("zoeDemoName") || "there";
-  document.getElementById("profile-name").textContent = currentName;
-  document.getElementById("profile-avatar").textContent = currentName.charAt(0).toUpperCase();
-  authScreen.hidden = true;
-  loadingScreen.hidden = true;
-  shell.hidden = false;
-  setPage(new URLSearchParams(window.location.search).get("page") || "overview", false);
 } else {
-  showStartupLoading();
+  document.querySelector(".account-notice p").innerHTML =
+    "<strong>Your account stays yours.</strong> Sign-in is handled by Zoe’s secure account service. Chat messages are sent to OpenAI to generate replies.";
+  restoreWebSession();
 }
